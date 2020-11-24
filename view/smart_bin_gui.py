@@ -80,23 +80,17 @@ class SmartBinGUI(tk.Tk):
         self.coin_indicator.create_rectangle(0, 0, 400, 100, outline = "black", fill = "green")
         self.coin_indicator.pack(side = "bottom", fill = "x", pady = (0, 300))
 
-        # BinIndicator ("name", trigger_pin, echo_pin, position, container)
-        self.aluminum_can_bin = BinIndicator("Aluminum Cans", 1, 1, (150, 0), left_status_container)
-        self.plastic_bottle_bin = BinIndicator("Plastic Bottles", 1, 1, (100, 0), left_status_container)
-        self.paper_cup_bin = BinIndicator("Paper Cups", 1, 1, (150, 0), right_status_container)
-        self.unclassified_bin = BinIndicator("Unclassified Items", 1, 1, (100, 0), right_status_container)
+        # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
+        self.aluminum_can_bin   = BinIndicator("Aluminum Cans",      14, 15, (150, 0), left_status_container)
+        self.plastic_bottle_bin = BinIndicator("Plastic Bottles",    25, 8,  (100, 0), left_status_container)
+        self.paper_cup_bin      = BinIndicator("Paper Cups",         23, 24, (150, 0), right_status_container)
+        self.unclassified_bin   = BinIndicator("Unclassified Items", 7,  1,  (100, 0), right_status_container)
 
     def update_sensor_values(self):
         for bin in (self.aluminum_can_bin, self.plastic_bottle_bin, self.paper_cup_bin, self.unclassified_bin):
             bin.update()
 
         self.after(1000, self.update_sensor_values)
-
-#     def displaySensor(assigned_bin, is_bin_full):
-#         if is_bin_full:
-#             label = tk.Label(display, textVariable = assigned_bin, width=40, fg="yellow", bg = "red")
-#         else:
-#             label = tk.Label(display, textVariable = assigned_bin, width=40, fg="yellow", bg = "green")
 
 if __name__ == '__main__':
     app = SmartBinGUI()
