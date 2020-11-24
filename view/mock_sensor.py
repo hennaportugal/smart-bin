@@ -26,8 +26,6 @@ class ProximitySensor():
     #     print('ProximitySensor::del')
 
     def read_distance(self):
-        print('ProximitySensor::read_distance')
-
         # GPIO.output(self.trig_pin, True)
         time.sleep(0.00001)
         # GPIO.output(self.trig_pin, False)
@@ -50,7 +48,6 @@ class ProximitySensor():
             return None
 
     def is_bin_full(self):
-        print('ProximitySensor::is_bin_full')
         # return (self.read_distance() <= self.empty_bin_distance and self.read_distance > 0)
         now = datetime.now()
         current_time = int(now.strftime("%M"))
