@@ -14,8 +14,8 @@ class BinIndicator():
         self.sensor = ProximitySensor(trig_pin, echo_pin)
 
         # gui canvas
-        self.canvas = tk.Canvas(canvas_container, width = 400, height = 100)
-        self.rectangle = self.canvas.create_rectangle(0, 0, 400, 100, outline = "black", fill = "green")
+        self.canvas = tk.Canvas(canvas_container, width = 320, height = 100)
+        self.rectangle = self.canvas.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
         self.canvas.pack(side = "top", pady = canvas_position)
 
     def get_assigned_bin(self):
@@ -30,7 +30,7 @@ class SmartBinGUI(tk.Tk):
         tk.Tk.__init__(self)
 
         self.attributes('-fullscreen', True)
-        self.title_font = tkfont.Font(family='Roboto', size=60)
+        self.title_font = tkfont.Font(family='Roboto', size=50)
 
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
@@ -39,51 +39,51 @@ class SmartBinGUI(tk.Tk):
         base_container.pack(fill = "both", expand = True)
 
         title_container = tk.Frame(base_container, width = 100, height = 100)
-        title_container.pack(side = "top", fill = "x")
+        title_container.pack(side = "top", fill = "x", pady = (20, 0))
 
-        instructions_container = tk.Frame(base_container, width = 700)
-        instructions_container.pack(side = "left", fill = "both")
+        # instructions_container = tk.Frame(base_container, width = 700)
+        # instructions_container.pack(side = "left", fill = "both")
 
         status_container = tk.Frame(base_container)
-        status_container.pack(side = "right", fill = "both", expand = True)
+        status_container.pack(side = "top", fill = "both", expand = True)
 
-        left_status_container = tk.Frame(status_container, width = 425)
-        left_status_container.pack(side = "left", fill = "both")
+        left_status_container = tk.Frame(status_container, width = 325)
+        left_status_container.pack(side = "left", fill = "both", padx = 10)
 
-        center_status_container = tk.Frame(status_container, width = 425)
-        center_status_container.pack(side = "left", fill = "both")
+        center_status_container = tk.Frame(status_container, width = 325)
+        center_status_container.pack(side = "left", fill = "both", padx = 10)
 
-        right_status_container = tk.Frame(status_container, width = 425)
-        right_status_container.pack(side = "left", fill = "both")
+        right_status_container = tk.Frame(status_container, width = 325)
+        right_status_container.pack(side = "left", fill = "both", padx = 10)
 
         TitleText = tk.Label(title_container, text = "SmartBin v2", fg = 'green', font = self.title_font)
-        TitleText.pack(side = "top", fill = "x", pady = 15)
-
-        TitleText = tk.Label(title_container, text = "Automatic Sorting Machine\n", fg = 'black')
-        TitleText.config(font=("Roboto", 20))
         TitleText.pack(side = "top", fill = "x")
 
-        InstructionsTitle = tk.Label(instructions_container, text = "Instructions:", fg = 'black')
-        InstructionsTitle.config(font=("Roboto", 25))
-        InstructionsTitle.pack(side = "top", fill = "both", pady = (300, 0))
+        TitleText = tk.Label(title_container, text = "Automatic Sorting Machine", fg = 'black')
+        TitleText.config(font=("Roboto", 15))
+        TitleText.pack(side = "top", fill = "x")
 
-        Instructions = tk.Label(instructions_container, text = "\n1. Pour remaining liquid in the item\n\n2. Place the item inside of the bin\n\n3. Wait for the system to classify and sort your trash\n\n4. Get your reward!",
-                                fg = 'black')
-        Instructions.config(font=("Roboto", 20))
-        Instructions.pack(side = "top", fill = "both")
+#         InstructionsTitle = tk.Label(instructions_container, text = "Instructions:", fg = 'black')
+#         InstructionsTitle.config(font=("Roboto", 25))
+#         InstructionsTitle.pack(side = "top", fill = "both", pady = (300, 0))
 
-        self.status_indicator = tk.Canvas(center_status_container, width = 400, height = 100)
-        self.status_indicator.create_rectangle(0, 0, 400, 100, outline = "black", fill = "green")
-        self.status_indicator.pack(side = "top", fill = "x")
+#         Instructions = tk.Label(instructions_container, text = "\n1. Pour remaining liquid in the item\n\n2. Place the item inside of the bin\n\n3. Wait for the system to classify and sort your trash\n\n4. Get your reward!",
+#                                 fg = 'black')
+#         Instructions.config(font=("Roboto", 20))
+#         Instructions.pack(side = "top", fill = "both")
 
-        self.coin_indicator = tk.Canvas(center_status_container, width = 400, height = 100)
-        self.coin_indicator.create_rectangle(0, 0, 400, 100, outline = "black", fill = "green")
-        self.coin_indicator.pack(side = "bottom", fill = "x", pady = (0, 300))
+        self.status_indicator = tk.Canvas(center_status_container, width = 320, height = 100)
+        self.status_indicator.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
+        self.status_indicator.pack(side = "top", fill = "x", pady = (30, 0))
+
+        self.coin_indicator = tk.Canvas(center_status_container, width = 320, height = 100)
+        self.coin_indicator.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
+        self.coin_indicator.pack(side = "bottom", fill = "x", pady = (0, 100))
 
         # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
-        self.aluminum_can_bin   = BinIndicator("Aluminum Cans",      14, 15, (150, 0), left_status_container)
+        self.aluminum_can_bin   = BinIndicator("Aluminum Cans",      14, 15, (143, 0), left_status_container)
         self.plastic_bottle_bin = BinIndicator("Plastic Bottles",    25, 8,  (100, 0), left_status_container)
-        self.paper_cup_bin      = BinIndicator("Paper Cups",         23, 24, (150, 0), right_status_container)
+        self.paper_cup_bin      = BinIndicator("Paper Cups",         23, 24, (143, 0), right_status_container)
         self.unclassified_bin   = BinIndicator("Unclassified Items", 7,  1,  (100, 0), right_status_container)
 
     def update_sensor_values(self):
