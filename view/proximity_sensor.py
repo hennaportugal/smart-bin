@@ -7,8 +7,7 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
 class ProximitySensor():
-    def __init__(self, assigned_pin, trig_pin, echo_pin):
-        self.assigned_bin = assigned_bin
+    def __init__(self, trig_pin, echo_pin):
         self.trig_pin = trig_pin
         self.echo_pin = echo_pin
 
@@ -51,6 +50,3 @@ class ProximitySensor():
     def is_bin_full(self):
         print('ProximitySensor::is_bin_full')
         return (self.read_distance() <= self.empty_bin_distance and self.read_distance > 0)
-
-    def get_assigned_bin(self):
-        return self.assigned_bin
