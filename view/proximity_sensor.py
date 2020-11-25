@@ -11,7 +11,6 @@ class ProximitySensor():
         self.trig_pin = trig_pin
         self.echo_pin = echo_pin
 
-        self.distance = 0
         self.empty_bin_distance = 20
 
         GPIO.setup(self.trig_pin, GPIO.OUT)
@@ -32,18 +31,21 @@ class ProximitySensor():
         pulse_end= time.time()
 
         while GPIO.input(self.echo_pin) == 0:
-            pulse_start= 0
+            pulse_start= time.time()
         while GPIO.input(self.echo_pin) == 1:
-            pulse_end= 0
+            pulse_end= time.time()
         pulse_duration = pulse_end - pulse_start
 
-        self.distance = pulse_duration * 18000
-        self.distance = round(self.distance, 2)
+        distance = (pulse_duration * 34300) / 2
 
-        if self.distance <= 500:
-            return self.distance
+        if distance <= 500:
+            return distance
         else:
-            return 0
+            return None
 
     def is_bin_full(self):
-        return (self.read_distance() <= self.empty_bin_distance and self.read_distance() > 0)
+        distance = self.read_distance()
+        if distance == None:
+            return False
+
+        return (distance <= self.empty_bin_distance and distance > 0)
