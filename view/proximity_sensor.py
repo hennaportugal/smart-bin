@@ -40,3 +40,19 @@ class ProximitySensor():
 
         if distance <= 500:
             return distance
+
+    def is_bin_full(self):
+        start_time = time.time()
+        distance = self.read_distance()
+
+        if distance <= 20 and distance > 0:
+            return True
+        elif distance > 20:
+            return False
+        else:
+            wait = start_time + 1 - time.time()
+
+        if wait > 0:
+            time.sleep(wait)
+
+        return False

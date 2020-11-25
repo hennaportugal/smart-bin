@@ -1,7 +1,7 @@
 import time
 import tkinter as tk
 from tkinter import font as tkfont
-from proximity_sensor import ProximitySensor
+from mock_sensor import ProximitySensor
 from mock_hopper import CoinHopper
 
 class BinIndicator():
@@ -20,27 +20,15 @@ class BinIndicator():
         self.canvas.pack(side = "top", pady = canvas_position)
         self.text = self.canvas.create_text((160, 55), text = assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=22))
 
-    def update(self, start_time):
-        distance = self.sensor.read_distance()
-
-        if distance is not None:
-            if distance <= 20 and distance > 0:
-                self.canvas.itemconfig(self.rectangle, fill = "red")
-                self.canvas.itemconfig(self.text, fill = "black")
-                return True
-            elif distance > 20:
-                self.canvas.itemconfig(self.rectangle, fill = "green")
-                self.canvas.itemconfig(self.text, fill = "white")
-                return False
-            else:
-                wait = start_time + 1 - time.time()
+    def update(self):
+        if self.sensor.is_bin_full():
+            self.canvas.itemconfig(self.rectangle, fill = "red")
+            self.canvas.itemconfig(self.text, fill = "black")
+            return True
         else:
-            wait = start_time + 1 - time.time()
-
-        if wait > 0:
-            time.sleep(wait)
-
-        return False
+            self.canvas.itemconfig(self.rectangle, fill = "green")
+            self.canvas.itemconfig(self.text, fill = "white")
+            return False
 
 # TODO: make this a strategy pattern(?) with bin indicator
 class StatusIndicator():
@@ -145,13 +133,12 @@ class SmartBinGUI(tk.Tk):
         self.unclassified_bin   = BinIndicator("UNCLASSIFIED ITEMS", 7,  1,  (100, 0), right_status_container)
 
     def update(self):
-        start_time = time.time()
         bin_is_full = []
         for bin in (self.aluminum_can_bin,
                     self.plastic_bottle_bin,
                     self.paper_cup_bin,
                     self.unclassified_bin):
-            bin_is_full.append(bin.update(start_time))
+            bin_is_full.append(bin.update())
 
         self.status_indicator.update(bin_is_full)
         self.coin_indicator.update()
