@@ -1,7 +1,7 @@
 import time
 import tkinter as tk
 from tkinter import font as tkfont
-from mock_sensor import ProximitySensor
+from proximity_sensor import ProximitySensor
 
 class BinIndicator():
     def __init__(self, assigned_bin, trig_pin, echo_pin, canvas_position, canvas_container):
@@ -19,15 +19,27 @@ class BinIndicator():
         self.canvas.pack(side = "top", pady = canvas_position)
         self.text = self.canvas.create_text((160, 55), text = assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=22))
 
-    def update(self):
-        if self.sensor.is_bin_full():
-            self.canvas.itemconfig(self.rectangle, fill = "red")
-            self.canvas.itemconfig(self.text, fill = "black")
-            return True
+    def update(self, start_time):
+        distance = self.sensor.read_distance()
+
+        if distance is not None:
+            if distance <= 20 and distance > 0:
+                self.canvas.itemconfig(self.rectangle, fill = "red")
+                self.canvas.itemconfig(self.text, fill = "black")
+                return True
+            elif distance > 20:
+                self.canvas.itemconfig(self.rectangle, fill = "green")
+                self.canvas.itemconfig(self.text, fill = "white")
+                return False
+            else:
+                wait = start_time + 1 - time.time()
         else:
-            self.canvas.itemconfig(self.rectangle, fill = "green")
-            self.canvas.itemconfig(self.text, fill = "white")
-            return False
+            wait = start_time + 1 - time.time()
+
+        if wait > 0:
+            time.sleep(wait)
+
+        return False
 
 # TODO: make this a strategy pattern(?) with bin indicator
 class StatusIndicator():
@@ -42,20 +54,18 @@ class StatusIndicator():
         self.text = self.canvas.create_text((160, 55), text = self.assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=18))
 
     def update(self, is_bin_full):
-        if is_bin_full:
+        if True in is_bin_full:
             self.canvas.itemconfig(self.rectangle, fill = "red")
             self.canvas.itemconfig(self.text, fill = "black", text="Maintenance Mode")
-            return True
         else:
             self.canvas.itemconfig(self.rectangle, fill = "green")
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
-            return False
 
 class CoinIndicator():
     def __init__(self, assigned_bin, canvas_position, canvas_container, side = "top"):
         # bin name
         self.assigned_bin = assigned_bin
-
+ 
         self.side = side
 
         # gui canvas
@@ -65,14 +75,12 @@ class CoinIndicator():
         self.text = self.canvas.create_text((160, 55), text = self.assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=18))
 
     def update(self, is_bin_full):
-        if is_bin_full:
+        if True in is_bin_full:
             self.canvas.itemconfig(self.rectangle, fill = "red")
             self.canvas.itemconfig(self.text, fill = "black", text="REFILL COINS")
-            return True
         else:
             self.canvas.itemconfig(self.rectangle, fill = "green")
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
-            return False
 
 class SmartBinGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -128,16 +136,22 @@ class SmartBinGUI(tk.Tk):
         # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
         self.aluminum_can_bin   = BinIndicator("ALUMINUM CANS",      14, 15, (143, 0), left_status_container)
         self.plastic_bottle_bin = BinIndicator("PLASTIC BOTTLES",    25, 8,  (100, 0), left_status_container)
-        self.paper_cup_bin      = BinIndicator("PAPER CUPS",         22, 24, (143, 0), right_status_container)
+        self.paper_cup_bin      = BinIndicator("PAPER CUPS",         23, 24, (143, 0), right_status_container)
         self.unclassified_bin   = BinIndicator("UNCLASSIFIED ITEMS", 7,  1,  (100, 0), right_status_container)
 
     def update(self):
-        for bin in (self.aluminum_can_bin, self.plastic_bottle_bin, self.paper_cup_bin, self.unclassified_bin):
-            bin_is_full = bin.update()
-            self.status_indicator.update(bin_is_full)
-            self.coin_indicator.update(bin_is_full)
+        start_time = time.time()
+        bin_is_full = []
+        for bin in (self.aluminum_can_bin,
+                    self.plastic_bottle_bin,
+                    self.paper_cup_bin,
+                    self.unclassified_bin):
+            bin_is_full.append(bin.update(start_time))
 
-        self.after(1000, self.update)
+        self.status_indicator.update(bin_is_full)
+        self.coin_indicator.update(bin_is_full)
+
+        self.after(3000, self.update)
 
 if __name__ == '__main__':
     app = SmartBinGUI()
