@@ -29,6 +29,28 @@ class BinIndicator():
             self.canvas.itemconfig(self.text, fill = "white")
             return False
 
+# TODO: make this a strategy pattern(?) with bin indicator
+class StatusIndicator():
+    def __init__(self, assigned_bin, canvas_position, canvas_container):
+        # bin name
+        self.assigned_bin = assigned_bin
+
+        # gui canvas
+        self.canvas = tk.Canvas(canvas_container, width = 320, height = 100)
+        self.rectangle = self.canvas.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
+        self.canvas.pack(side = "top", pady = canvas_position)
+        self.text = self.canvas.create_text((160, 55), text = self.assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=18))
+
+    def update(self, is_bin_full):
+        if is_bin_full:
+            self.canvas.itemconfig(self.rectangle, fill = "red")
+            self.canvas.itemconfig(self.text, fill = "black", text="Maintenance Mode")
+            return True
+        else:
+            self.canvas.itemconfig(self.rectangle, fill = "green")
+            self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
+            return False
+
 class SmartBinGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self)
@@ -76,9 +98,7 @@ class SmartBinGUI(tk.Tk):
 #         Instructions.config(font=("Roboto", 20))
 #         Instructions.pack(side = "top", fill = "both")
 
-        self.status_indicator = tk.Canvas(center_status_container, width = 320, height = 100)
-        self.status_indicator.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
-        self.status_indicator.pack(side = "top", fill = "x", pady = (30, 0))
+        self.status_indicator    = StatusIndicator("Ready for Trash", (30, 0), center_status_container)
 
         self.coin_indicator = tk.Canvas(center_status_container, width = 320, height = 100)
         self.coin_indicator.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
@@ -92,7 +112,8 @@ class SmartBinGUI(tk.Tk):
 
     def update_sensor_values(self):
         for bin in (self.aluminum_can_bin, self.plastic_bottle_bin, self.paper_cup_bin, self.unclassified_bin):
-            bin.update()
+            bin_is_full = bin.update()
+            self.status_indicator.update(bin_is_full)
 
         self.after(1000, self.update_sensor_values)
 
