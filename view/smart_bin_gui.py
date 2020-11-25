@@ -22,6 +22,12 @@ class BinIndicator():
     def update(self):
         if self.sensor.is_bin_full():
             self.canvas.itemconfig(self.rectangle, fill = "red")
+            self.canvas.itemconfig(self.text, fill = "black")
+            return True
+        else:
+            self.canvas.itemconfig(self.rectangle, fill = "green")
+            self.canvas.itemconfig(self.text, fill = "white")
+            return False
 
 class SmartBinGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
