@@ -79,10 +79,10 @@ class SmartBinGUI(tk.Tk):
         self.coin_indicator.pack(side = "bottom", fill = "x", pady = (0, 100))
 
         # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
-        self.aluminum_can_bin   = BinIndicator("Aluminum Cans",      14, 15, (143, 0), left_status_container)
-        self.plastic_bottle_bin = BinIndicator("Plastic Bottles",    25, 8,  (100, 0), left_status_container)
-        self.paper_cup_bin      = BinIndicator("Paper Cups",         23, 24, (143, 0), right_status_container)
-        self.unclassified_bin   = BinIndicator("Unclassified Items", 7,  1,  (100, 0), right_status_container)
+        self.aluminum_can_bin   = BinIndicator("ALUMINUM CANS",      14, 15, (143, 0), left_status_container)
+        self.plastic_bottle_bin = BinIndicator("PLASTIC BOTTLES",    25, 8,  (100, 0), left_status_container)
+        self.paper_cup_bin      = BinIndicator("PAPER CUPS",         22, 24, (143, 0), right_status_container)
+        self.unclassified_bin   = BinIndicator("UNCLASSIFIED ITEMS", 7,  1,  (100, 0), right_status_container)
 
     def update_sensor_values(self):
         for bin in (self.aluminum_can_bin, self.plastic_bottle_bin, self.paper_cup_bin, self.unclassified_bin):
