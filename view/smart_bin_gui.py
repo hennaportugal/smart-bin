@@ -17,9 +17,7 @@ class BinIndicator():
         self.canvas = tk.Canvas(canvas_container, width = 320, height = 100)
         self.rectangle = self.canvas.create_rectangle(0, 0, 320, 100, outline = "black", fill = "green")
         self.canvas.pack(side = "top", pady = canvas_position)
-
-    def get_assigned_bin(self):
-        return self.assigned_bin
+        self.text = self.canvas.create_text((160, 55), text = assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=22))
 
     def update(self):
         if self.sensor.is_bin_full():
