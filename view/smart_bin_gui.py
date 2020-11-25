@@ -2,6 +2,7 @@ import time
 import tkinter as tk
 from tkinter import font as tkfont
 from proximity_sensor import ProximitySensor
+from mock_hopper import CoinHopper
 
 class BinIndicator():
     def __init__(self, assigned_bin, trig_pin, echo_pin, canvas_position, canvas_container):
@@ -62,11 +63,15 @@ class StatusIndicator():
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
 
 class CoinIndicator():
-    def __init__(self, assigned_bin, canvas_position, canvas_container, side = "top"):
+    def __init__(self, assigned_bin, sensor_pin, relay_pin, canvas_position, canvas_container, side = "top"):
         # bin name
         self.assigned_bin = assigned_bin
- 
         self.side = side
+
+        # sensor object
+        self.sensor_pin = sensor_pin
+        self.relay_pin = relay_pin
+        self.hopper = CoinHopper(sensor_pin, relay_pin)
 
         # gui canvas
         self.canvas = tk.Canvas(canvas_container, width = 320, height = 100)
@@ -74,13 +79,13 @@ class CoinIndicator():
         self.canvas.pack(side = self.side, pady = canvas_position)
         self.text = self.canvas.create_text((160, 55), text = self.assigned_bin, fill = "white", font = tkfont.Font(family='Roboto', size=18))
 
-    def update(self, is_bin_full):
-        if True in is_bin_full:
-            self.canvas.itemconfig(self.rectangle, fill = "red")
-            self.canvas.itemconfig(self.text, fill = "black", text="REFILL COINS")
-        else:
+    def update(self):
+        if self.hopper.drop_coin():
             self.canvas.itemconfig(self.rectangle, fill = "green")
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
+        else:
+            self.canvas.itemconfig(self.rectangle, fill = "red")
+            self.canvas.itemconfig(self.text, fill = "black", text="REFILL COINS")
 
 class SmartBinGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -131,7 +136,7 @@ class SmartBinGUI(tk.Tk):
 
         self.status_indicator    = StatusIndicator("Ready for Trash", (30, 0), center_status_container)
 
-        self.coin_indicator = CoinIndicator("I got money", (0, 90), center_status_container, side = "bottom")
+        self.coin_indicator = CoinIndicator("I got money", 16, 12, (0, 90), center_status_container, side = "bottom")
 
         # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
         self.aluminum_can_bin   = BinIndicator("ALUMINUM CANS",      14, 15, (143, 0), left_status_container)
@@ -149,7 +154,7 @@ class SmartBinGUI(tk.Tk):
             bin_is_full.append(bin.update(start_time))
 
         self.status_indicator.update(bin_is_full)
-        self.coin_indicator.update(bin_is_full)
+        self.coin_indicator.update()
 
         self.after(3000, self.update)
 
