@@ -87,14 +87,44 @@ class SmartBinGUI(tk.Tk):
         # will be raised above the others
         base_container= tk.Frame(self)
         base_container.pack(fill = "both", expand = True)
+        base_container.grid_rowconfigure(0, weight=1)
+        base_container.grid_columnconfigure(0, weight=1)
 
-        title_container = tk.Frame(base_container, width = 100, height = 100)
+        self.frames = {}
+        for i, F in enumerate((StatusFrame, InstructionsFrame)):
+            frame = F(parent=base_container, controller = self)
+            self.frames[i] = frame
+
+            # put all of the pages in the same location;
+            # the one on the top of the stacking order
+            # will be the one that is visible.
+            frame.grid(row = 0, column = 0, sticky = 'nsew')
+
+        self.time_shown = 0
+        self.page_index = 1
+        self.show_frame(self.page_index)
+        self.update()
+
+    def show_frame(self, page_index):
+        self.time_shown = time.time()
+        '''Show a frame for the given page name'''
+        self.page_index = page_index ^ 1
+        frame = self.frames[self.page_index]
+        frame.tkraise()
+
+    def update(self):
+        if (time.time() - self.time_shown) >= 15:
+            self.show_frame(self.page_index)
+        self.frames[0].update()
+        self.after(3000, self.update)
+
+class StatusFrame(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        title_container = tk.Frame(self, width = 100, height = 100)
         title_container.pack(side = "top", fill = "x", pady = (20, 0))
 
-        # instructions_container = tk.Frame(base_container, width = 700)
-        # instructions_container.pack(side = "left", fill = "both")
-
-        status_container = tk.Frame(base_container)
+        status_container = tk.Frame(self)
         status_container.pack(side = "top", fill = "both", expand = True)
 
         left_status_container = tk.Frame(status_container, width = 325)
@@ -106,21 +136,12 @@ class SmartBinGUI(tk.Tk):
         right_status_container = tk.Frame(status_container, width = 325)
         right_status_container.pack(side = "left", fill = "both", padx = 10)
 
-        TitleText = tk.Label(title_container, text = "SmartBin v2", fg = 'green', font = self.title_font)
+        TitleText = tk.Label(title_container, text = "SmartBin v2", fg = 'green', font = controller.title_font)
         TitleText.pack(side = "top", fill = "x")
 
         TitleText = tk.Label(title_container, text = "Automatic Sorting Machine", fg = 'black')
         TitleText.config(font=("Roboto", 15))
         TitleText.pack(side = "top", fill = "x")
-
-#         InstructionsTitle = tk.Label(instructions_container, text = "Instructions:", fg = 'black')
-#         InstructionsTitle.config(font=("Roboto", 25))
-#         InstructionsTitle.pack(side = "top", fill = "both", pady = (300, 0))
-
-#         Instructions = tk.Label(instructions_container, text = "\n1. Pour remaining liquid in the item\n\n2. Place the item inside of the bin\n\n3. Wait for the system to classify and sort your trash\n\n4. Get your reward!",
-#                                 fg = 'black')
-#         Instructions.config(font=("Roboto", 20))
-#         Instructions.pack(side = "top", fill = "both")
 
         self.status_indicator    = StatusIndicator("Ready for Trash", (30, 0), center_status_container)
 
@@ -143,7 +164,31 @@ class SmartBinGUI(tk.Tk):
         self.status_indicator.update(bin_is_full)
         self.coin_indicator.update()
 
-        self.after(3000, self.update)
+class InstructionsFrame(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        title_container = tk.Frame(self, width = 100, height = 100)
+        title_container.pack(side = "top", fill = "x", pady = (20, 0))
+
+        instructions_container = tk.Frame(self)
+        instructions_container.pack(side = "top", fill = "both", expand = True)
+
+        TitleText = tk.Label(title_container, text = "SmartBin v2", fg = 'green', font = controller.title_font)
+        TitleText.pack(side = "top", fill = "x")
+
+        TitleText = tk.Label(title_container, text = "Automatic Sorting Machine", fg = 'black')
+        TitleText.config(font=("Roboto", 15))
+        TitleText.pack(side = "top", fill = "x")
+
+        InstructionsTitle = tk.Label(instructions_container, text = "INSTRUCTIONS:", fg = 'black')
+        InstructionsTitle.config(font=("Roboto", 30))
+        InstructionsTitle.pack(side = "top", fill = "both", pady = (100, 0))
+
+        Instructions = tk.Label(instructions_container, text = "\n1. Pour remaining liquid in the item\n\n2. Place the item inside of the bin\n\n3. Wait for the system to classify\n\nand sort your trash\n\n4. Get your reward!",
+                                fg = 'black')
+        Instructions.config(font=("Roboto", 25))
+        Instructions.pack(side = "top", fill = "both")
 
 if __name__ == '__main__':
     app = SmartBinGUI()
