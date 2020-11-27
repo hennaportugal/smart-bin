@@ -45,10 +45,13 @@ class ProximitySensor():
         start_time = time.time()
         distance = self.read_distance()
 
-        if distance <= 20 and distance > 0:
-            return True
-        elif distance > 20:
-            return False
+        if distance is not None:
+            if distance <= 20 and distance > 0:
+                return True
+            elif distance > 20:
+                return False
+            else:
+                wait = start_time + 1 - time.time()
         else:
             wait = start_time + 1 - time.time()
 

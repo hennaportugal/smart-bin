@@ -1,7 +1,7 @@
 import time
 import tkinter as tk
 from tkinter import font as tkfont
-from mock_sensor import ProximitySensor
+from proximity_sensor import ProximitySensor
 from mock_hopper import CoinHopper
 
 class BinIndicator():
@@ -23,11 +23,9 @@ class BinIndicator():
     def update(self):
         if self.sensor.is_bin_full():
             self.canvas.itemconfig(self.rectangle, fill = "red")
-            self.canvas.itemconfig(self.text, fill = "black")
             return True
         else:
             self.canvas.itemconfig(self.rectangle, fill = "green")
-            self.canvas.itemconfig(self.text, fill = "white")
             return False
 
 # TODO: make this a strategy pattern(?) with bin indicator
@@ -45,7 +43,7 @@ class StatusIndicator():
     def update(self, is_bin_full):
         if True in is_bin_full:
             self.canvas.itemconfig(self.rectangle, fill = "red")
-            self.canvas.itemconfig(self.text, fill = "black", text="Maintenance Mode")
+            self.canvas.itemconfig(self.text, text="Maintenance Mode")
         else:
             self.canvas.itemconfig(self.rectangle, fill = "green")
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
@@ -71,9 +69,11 @@ class CoinIndicator():
         if self.hopper.drop_coin():
             self.canvas.itemconfig(self.rectangle, fill = "green")
             self.canvas.itemconfig(self.text, fill = "white", text=self.assigned_bin)
+            return False
         else:
             self.canvas.itemconfig(self.rectangle, fill = "red")
-            self.canvas.itemconfig(self.text, fill = "black", text="REFILL COINS")
+            self.canvas.itemconfig(self.text, text="REFILL COINS")
+            return True
 
 class SmartBinGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -103,7 +103,6 @@ class SmartBinGUI(tk.Tk):
         self.time_shown = 0
         self.page_index = 1
         self.show_frame(self.page_index)
-        self.update()
 
     def show_frame(self, page_index):
         self.time_shown = time.time()
@@ -113,8 +112,8 @@ class SmartBinGUI(tk.Tk):
         frame.tkraise()
 
     def update(self):
-        if (time.time() - self.time_shown) >= 15:
-            self.show_frame(self.page_index)
+#        if (time.time() - self.time_shown) >= 15:
+#            self.show_frame(self.page_index)
         self.frames[0].update()
         self.after(3000, self.update)
 
@@ -127,14 +126,14 @@ class StatusFrame(tk.Frame):
         status_container = tk.Frame(self)
         status_container.pack(side = "top", fill = "both", expand = True)
 
-        left_status_container = tk.Frame(status_container, width = 325)
-        left_status_container.pack(side = "left", fill = "both", padx = 10)
+        left_status_container = tk.Frame(status_container, width = 500)
+        left_status_container.pack(side = "left", fill = "both", padx = (110, 60))
 
-        center_status_container = tk.Frame(status_container, width = 325)
-        center_status_container.pack(side = "left", fill = "both", padx = 10)
+        center_status_container = tk.Frame(status_container, width = 500)
+        center_status_container.pack(side = "left", fill = "both", padx = 60)
 
-        right_status_container = tk.Frame(status_container, width = 325)
-        right_status_container.pack(side = "left", fill = "both", padx = 10)
+        right_status_container = tk.Frame(status_container, width = 500)
+        right_status_container.pack(side = "left", fill = "both", padx = (60, 110))
 
         TitleText = tk.Label(title_container, text = "SmartBin v2", fg = 'green', font = controller.title_font)
         TitleText.pack(side = "top", fill = "x")
@@ -145,7 +144,7 @@ class StatusFrame(tk.Frame):
 
         self.status_indicator    = StatusIndicator("Ready for Trash", (30, 0), center_status_container)
 
-        self.coin_indicator = CoinIndicator("I got money", 16, 12, (0, 90), center_status_container, side = "bottom")
+        self.coin_indicator = CoinIndicator("I got money", 16, 12, (0, 130), center_status_container, side = "bottom")
 
         # bin                   = BinIndicator("name",               trigger_pin, echo_pin, position, container)
         self.aluminum_can_bin   = BinIndicator("ALUMINUM CANS",      14, 15, (143, 0), left_status_container)
@@ -161,8 +160,8 @@ class StatusFrame(tk.Frame):
                     self.unclassified_bin):
             bin_is_full.append(bin.update())
 
+        bin_is_full.append(self.coin_indicator.update())
         self.status_indicator.update(bin_is_full)
-        self.coin_indicator.update()
 
 class InstructionsFrame(tk.Frame):
     def __init__(self, parent, controller):
